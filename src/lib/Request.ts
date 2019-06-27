@@ -11,7 +11,7 @@ const MAX_NUMBERS_PER_REQUEST = 1000;
 const DEFAULT_POLL_INTERVAL = 1000;
 const DEFAULT_PAGE_SIZE = 100;
 
-type RequestConstructor = {
+type RequestConstructorOptions = {
   apiKey: string;
   endpointUrl?: string;
   requestId: string;
@@ -19,7 +19,22 @@ type RequestConstructor = {
 
 type EachPageOptions = {
   pageSize?: number;
-  onPage: Function;
+  onPage?: (numbers: [string]) => Promise<any>;
+};
+
+type ProgressUpdate = {
+  completedAt: Date | null;
+  progress: number | null;
+};
+
+type WaitUntilDoneOptions = {
+  pollInterval?: number;
+  onProgressUpdate?: (progress: number) => any;
+};
+
+type AddPhoneNumbersResponse = {
+  countAdded: number;
+  invalidNumbers: [string];
 };
 
 class Request {
@@ -29,17 +44,30 @@ class Request {
   closed: boolean = false;
   done: boolean = false;
 
-  constructor({ apiKey, endpointUrl, requestId }: RequestConstructor) {
+  /**
+   * @param options options to initialize Request instance
+   */
+  constructor(options: RequestConstructorOptions) {
+    const { apiKey, endpointUrl, requestId } = options;
     this.apiKey = apiKey;
     this.endpointUrl = endpointUrl;
     this.requestId = requestId;
   }
 
+  /**
+   * @hidden
+   */
   _request() {
     return request.set('token', this.apiKey).post(this.endpointUrl);
   }
 
-  async addPhoneNumbers(phoneNumbers: [string]) {
+  /**
+   * Add phone numbers to a created, open request
+   * @param phoneNumbers the phone numbers to add – up to 1000
+   */
+  async addPhoneNumbers(
+    phoneNumbers: [string]
+  ): Promise<AddPhoneNumbersResponse> {
     if (this.closed) {
       throw new Error(`You cannot add numbers to a closed request`);
     }
@@ -60,6 +88,9 @@ class Request {
     return response.data.addPhoneNumbersToRequest;
   }
 
+  /**
+   * Close the request so that its completion can be awaited
+   */
   async close() {
     await this._request().use(
       ql(CLOSE_REQUEST, {
@@ -70,24 +101,33 @@ class Request {
     this.closed = true;
   }
 
-  async poll() {
+  /**
+   * Return the current progress and completion status
+   */
+  async poll(): Promise<ProgressUpdate> {
     const response = await this._request().use(
       ql(REQUEST_PROGRESS, {
         requestId: this.requestId
       })
     );
 
-    return response.data.requestProgress;
+    const result: ProgressUpdate = response.data.requestProgress;
+    return result;
   }
 
+  /**
+   * @hidden
+   */
   sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  async waitUntilDone({
-    onProgressUpdate,
-    pollInterval = DEFAULT_POLL_INTERVAL
-  }) {
+  /**
+   *
+   * @param param0
+   */
+  async waitUntilDone(options: WaitUntilDoneOptions) {
+    const { onProgressUpdate, pollInterval = DEFAULT_POLL_INTERVAL } = options;
     if (!this.closed) {
       throw new Error(
         'You must close a request before awaiting its completion'
@@ -110,11 +150,15 @@ class Request {
     }
   }
 
+  /**
+   * @hidden
+   */
   wrapEachPage(phoneType: string) {
-    return async function eachPage({
-      pageSize = DEFAULT_PAGE_SIZE,
-      onPage
-    }: EachPageOptions) {
+    return async function eachPage(options: EachPageOptions) {
+      const { pageSize = DEFAULT_PAGE_SIZE, onPage } = options;
+
+      let useOnPageFunction = typeof onPage === 'function';
+
       let cursor: string;
       let hasNextPage = true;
 
@@ -134,7 +178,7 @@ class Request {
         hasNextPage = pageInfo.hasNextPage;
         cursor = pageInfo.cursor;
 
-        await onPage(numbers);
+        if (useOnPageFunction) await onPage(numbers);
       }
     };
   }

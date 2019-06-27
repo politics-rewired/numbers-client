@@ -13,7 +13,11 @@ class NumbersClient {
   apiKey: string = null;
   endpointUrl: string = DEFAULT_ENDPOINT;
 
-  constructor({ apiKey, endpointUrl }: NumbersClientConstructor) {
+  /**
+   * @param options NumbersClient initialization options
+   */
+  constructor(options: NumbersClientConstructor) {
+    const { apiKey, endpointUrl } = options;
     if (!apiKey) {
       throw new Error('Parameter `apiKey` required in constructor');
     }
@@ -25,6 +29,9 @@ class NumbersClient {
     }
   }
 
+  /**
+   * @hidden
+   */
   _request() {
     return request.set('token', this.apiKey).post(this.endpointUrl);
   }
@@ -38,6 +45,12 @@ class NumbersClient {
     });
   }
 
+  /**
+   * If you need to make a rawGraphQL request for some access pattern
+   * not supported, you can use this endpoint
+   * @param query a GraphQL query string to run
+   * @param variables variables matching your graphql query
+   */
   async rawGraphQLRequest(query, variables) {
     const response = this._request().use(ql(query, variables));
     return response.body.data;
