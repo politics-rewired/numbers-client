@@ -33,43 +33,45 @@ If using batch requests and the Assemble service, lookups can run as fast as 500
 
 ## Batch Requests
 
-    // ES Module style
-    import NumbersClient from 'assemble-numbers-client';
+```javascript
+// ES Module style
+import NumbersClient from 'assemble-numbers-client';
 
-    const options = {
-      apiKey: 'YOUR_ASSEMBLE_NUMBERS_API_KEY',
+const options = {
+  apiKey: 'YOUR_ASSEMBLE_NUMBERS_API_KEY'
+};
+
+const numbersClient = new NumbersClient(options);
+
+async function filterNumbersForType(phoneNumbers: [string], type: string) {
+  const request = await numbersClient.createRequest();
+
+  // addPhoneNumbersToRequest to request accepts a maximum of 500 numbers
+  // at a time
+  // you can put up to 500,000 numbers in a single request
+  await request.addPhoneNumbersToRequest(phoneNumbers);
+
+  await request.close();
+
+  await request.waitUntilDone({
+    onProgressUpdate: (countCompleted, total) => {
+      console.log(`Completed ${countCompleted} out of ${total}`);
     }
+  });
 
-    const numbersClient = new NumbersClient(options);
-
-    async function filterNumbersForType(phoneNumbers: [string], type: string) {
-      const request = await numbersClient.createRequest();
-
-      // addPhoneNumbersToRequest to request accepts a maximum of 500 numbers
-      // at a time
-      // you can put up to 500,000 numbers in a single request
-      await request.addPhoneNumbersToRequest(phoneNumbers);
-
-      await request.close();
-
-      await request.waitUntilDone({
-        onProgressUpdate: (countCompleted, total) => {
-          console.log(`Completed ${countCompleted} out of ${total}`);
-        }
-      })
-
-      return await request.mobiles.eachPage({
-        pageSize: n,
-        onPage: async (numbers, pageNumber) => {
-          // all of these numbers are mobiles
-          // do something with them!
-        }
-      })
-
-      // other methods on a finished request include:
-      // request.landlines.each();
-      // request.others.each();
+  return await request.mobiles.eachPage({
+    pageSize: n,
+    onPage: async (numbers, pageNumber) => {
+      // all of these numbers are mobiles
+      // do something with them!
     }
+  });
+
+  // other methods on a finished request include:
+  // request.landlines.each();
+  // request.others.each();
+}
+```
 
 # Additional Details
 
