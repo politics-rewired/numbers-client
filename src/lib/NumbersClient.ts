@@ -33,7 +33,7 @@ class NumbersClient {
    * @hidden
    */
   _request() {
-    return request.set('token', this.apiKey).post(this.endpointUrl);
+    return request.post(this.endpointUrl).set('token', this.apiKey);
   }
 
   async createRequest() {
@@ -41,7 +41,7 @@ class NumbersClient {
     return new Request({
       apiKey: this.apiKey,
       endpointUrl: this.endpointUrl,
-      requestId: response.data.createRequest.request.id
+      requestId: response.body.data.createRequest.request.id
     });
   }
 

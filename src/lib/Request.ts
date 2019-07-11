@@ -19,7 +19,7 @@ type RequestConstructorOptions = {
 
 type EachPageOptions = {
   pageSize?: number;
-  onPage?: (numbers: [string]) => Promise<any>;
+  onPage?: (numbers: [{ phoneNumber: string }]) => Promise<any>;
 };
 
 type ProgressUpdate = {
@@ -58,7 +58,7 @@ class Request {
    * @hidden
    */
   _request() {
-    return request.set('token', this.apiKey).post(this.endpointUrl);
+    return request.post(this.endpointUrl).set('token', this.apiKey);
   }
 
   /**
@@ -85,7 +85,7 @@ class Request {
       })
     );
 
-    return response.data.addPhoneNumbersToRequest;
+    return response.body.data.addPhoneNumbersToRequest;
   }
 
   /**
@@ -111,7 +111,7 @@ class Request {
       })
     );
 
-    const result: ProgressUpdate = response.data.requestProgress;
+    const result: ProgressUpdate = response.body.data.request;
     return result;
   }
 
@@ -137,7 +137,9 @@ class Request {
     let usePollingFunction = typeof onProgressUpdate === 'function';
 
     while (!this.done) {
-      const { completedAt, progress } = await this.poll();
+      const pollResult = await this.poll();
+      const completedAt = pollResult.completedAt;
+      const progress = pollResult.progress;
       if (completedAt != null) {
         this.done = true;
       }
@@ -154,7 +156,7 @@ class Request {
    * @hidden
    */
   wrapEachPage(phoneType: string) {
-    return async function eachPage(options: EachPageOptions) {
+    const eachPage = async (options: EachPageOptions) => {
       const { pageSize = DEFAULT_PAGE_SIZE, onPage } = options;
 
       let useOnPageFunction = typeof onPage === 'function';
@@ -163,17 +165,17 @@ class Request {
       let hasNextPage = true;
 
       while (hasNextPage) {
-        const response = this._request().use(
+        const response = await this._request().use(
           ql(REQUEST_RESULTS_BY_TYPE, {
             cursor,
             pageSize,
-            phoneType,
+            phoneType: phoneType.toUpperCase(),
             requestId: this.requestId
           })
         );
 
-        const pageInfo = response.body.data.pageInfo;
-        const numbers = response.body.data.nodes;
+        const pageInfo = response.body.data.requestResults.pageInfo;
+        const numbers = response.body.data.requestResults.nodes;
 
         hasNextPage = pageInfo.hasNextPage;
         cursor = pageInfo.cursor;
@@ -181,6 +183,8 @@ class Request {
         if (useOnPageFunction) await onPage(numbers);
       }
     };
+
+    return eachPage;
   }
 
   mobiles = {

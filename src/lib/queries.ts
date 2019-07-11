@@ -30,7 +30,7 @@ export const CLOSE_REQUEST = `
 
 export const REQUEST_PROGRESS = `
   query requestProgress($requestId: UUID!) {
-    requestById(requestId: $requestId) {
+    request(id: $requestId) {
       progress
       completedAt
     }
@@ -38,7 +38,7 @@ export const REQUEST_PROGRESS = `
 `;
 
 export const REQUEST_RESULTS_BY_TYPE = `
-  query requestResultsByType($requestId: UUID!, phoneType: String!, pageSize: Int!, cursor: Cursor) {
+  query requestResultsByType($requestId: UUID!, $phoneType: PhoneTypeEnum!, $pageSize: Int!, $cursor: Cursor) {
     requestResults(
       condition: {requestId: $requestId, phoneType: $phoneType}
       first: $pageSize,
