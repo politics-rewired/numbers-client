@@ -73,6 +73,10 @@ async function filterNumbersForType(phoneNumbers: [string], type: string) {
 }
 ```
 
+# Full Documentation
+
+Full documentation is available [here](https://politics-rewired.github.io/numbers-client/)t .
+
 # Additional Details
 
 ## Additional Carrier Info
