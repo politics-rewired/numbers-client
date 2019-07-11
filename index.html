@@ -83,16 +83,16 @@
 				<p>Fetching data from Assemble Numbers is done via batched requests. You create a request, add numbers to the request, close the request, and then await its completion.</p>
 				<p>If using batch requests and the Assemble service, lookups can run as fast as 500 numbers/second.</p>
 				<h2 id="batch-requests">Batch Requests</h2>
-				<pre><code><span class="hljs-comment">// ES Module style</span>
+				<pre><code class="language-javascript"><span class="hljs-comment">// ES Module style</span>
 <span class="hljs-keyword">import</span> NumbersClient <span class="hljs-keyword">from</span> <span class="hljs-string">'assemble-numbers-client'</span>;
 
 <span class="hljs-keyword">const</span> options = {
-  apiKey: <span class="hljs-string">'YOUR_ASSEMBLE_NUMBERS_API_KEY'</span>,
-}
+  <span class="hljs-attr">apiKey</span>: <span class="hljs-string">'YOUR_ASSEMBLE_NUMBERS_API_KEY'</span>
+};
 
 <span class="hljs-keyword">const</span> numbersClient = <span class="hljs-keyword">new</span> NumbersClient(options);
 
-<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">filterNumbersForType</span>(<span class="hljs-params">phoneNumbers: [<span class="hljs-built_in">string</span>], <span class="hljs-keyword">type</span>: <span class="hljs-built_in">string</span></span>) </span>{
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">filterNumbersForType</span>(<span class="hljs-params">phoneNumbers: [string], type: string</span>) </span>{
   <span class="hljs-keyword">const</span> request = <span class="hljs-keyword">await</span> numbersClient.createRequest();
 
   <span class="hljs-comment">// addPhoneNumbersToRequest to request accepts a maximum of 500 numbers</span>
@@ -103,23 +103,24 @@
   <span class="hljs-keyword">await</span> request.close();
 
   <span class="hljs-keyword">await</span> request.waitUntilDone({
-    onProgressUpdate: <span class="hljs-function">(<span class="hljs-params">countCompleted, total</span>) =&gt;</span> {
+    <span class="hljs-attr">onProgressUpdate</span>: <span class="hljs-function">(<span class="hljs-params">countCompleted, total</span>) =&gt;</span> {
       <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Completed <span class="hljs-subst">${countCompleted}</span> out of <span class="hljs-subst">${total}</span>`</span>);
     }
-  })
+  });
 
   <span class="hljs-keyword">return</span> <span class="hljs-keyword">await</span> request.mobiles.eachPage({
-    pageSize: n,
-    onPage: <span class="hljs-keyword">async</span> (numbers, pageNumber) =&gt; {
+    <span class="hljs-attr">pageSize</span>: n,
+    <span class="hljs-attr">onPage</span>: <span class="hljs-keyword">async</span> (numbers, pageNumber) =&gt; {
       <span class="hljs-comment">// all of these numbers are mobiles</span>
       <span class="hljs-comment">// do something with them!</span>
     }
-  })
+  });
 
   <span class="hljs-comment">// other methods on a finished request include:</span>
   <span class="hljs-comment">// request.landlines.each();</span>
   <span class="hljs-comment">// request.others.each();</span>
-}</code></pre><h1 id="additional-details">Additional Details</h1>
+}</code></pre>
+				<h1 id="additional-details">Additional Details</h1>
 				<h2 id="additional-carrier-info">Additional Carrier Info</h2>
 				<p>When we look up a number, we not only get information about the phone type (mobile, landline, or VOIP (other)), but we also learn the carrier and some other data.</p>
 				<p>Although at the moment (beginning of July), the Assemble API only exposes the phone type, we will be incorporating additional information into the API soon, and you will be able to access all of that information for numbers you have already looked up without additional charges.</p>
