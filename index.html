@@ -64,7 +64,74 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<h1 id="numbers-client">numbers-client</h1>
+				<h1 id="assemble-numbers-client">Assemble Numbers Client</h1>
+				<p>For P2P texting and calling applications, it’s useful to lookup information about a phone number before you text or call it, since it lets you know whether the number is reachable by the desired method.</p>
+				<p>Under most circumstances, it will save you money – suppose</p>
+				<ul>
+					<li>sending texts costs $0.0075 per segment</li>
+					<li>50% of your numbers are landlines (a reasonable assumption when working with voter file data)</li>
+					<li>it costs $0.0025 to look up a number</li>
+					<li>you are going to text 100,000 people</li>
+				</ul>
+				<p>With prior validation of numbers, it will cost you:</p>
+				<pre><code>(<span class="hljs-number">50</span>,<span class="hljs-number">000</span> * <span class="hljs-number">.0025</span>) + (<span class="hljs-number">50</span>,<span class="hljs-number">000</span> * (<span class="hljs-number">.0025</span> + <span class="hljs-number">.0075</span>)) = <span class="hljs-number">625</span></code></pre><p>Without prior validation, it will cost:</p>
+				<pre><code><span class="hljs-number">100</span>,<span class="hljs-number">000</span> * <span class="hljs-number">.0075</span> = <span class="hljs-number">750</span></code></pre><p>Savings!</p>
+				<p>However, you are probably going to text the same contacts over and over again – without validating, you may end up re-texting landlines, if you are not meticulously tracking and handling response codes from the SMS service.</p>
+				<p>Assemble Numbers is a small service in Beta for looking up and storing carrier information about cell phone numbers. It provides an asynchronous, batch-based API for requesting information about large amounts of numbers at a time.</p>
+				<p>To get an API key, head to <a href="https://airtable.com/shruW0ZhyOSw3KzIw">https://airtable.com/shruW0ZhyOSw3KzIw</a>.</p>
+				<h1 id="usage">Usage</h1>
+				<p>Fetching data from Assemble Numbers is done via batched requests. You create a request, add numbers to the request, close the request, and then await its completion.</p>
+				<p>If using batch requests and the Assemble service, lookups can run as fast as 500 numbers/second.</p>
+				<h2 id="batch-requests">Batch Requests</h2>
+				<pre><code><span class="hljs-comment">// ES Module style</span>
+<span class="hljs-keyword">import</span> NumbersClient <span class="hljs-keyword">from</span> <span class="hljs-string">'assemble-numbers-client'</span>;
+
+<span class="hljs-keyword">const</span> options = {
+  apiKey: <span class="hljs-string">'YOUR_ASSEMBLE_NUMBERS_API_KEY'</span>,
+}
+
+<span class="hljs-keyword">const</span> numbersClient = <span class="hljs-keyword">new</span> NumbersClient(options);
+
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">filterNumbersForType</span>(<span class="hljs-params">phoneNumbers: [<span class="hljs-built_in">string</span>], <span class="hljs-keyword">type</span>: <span class="hljs-built_in">string</span></span>) </span>{
+  <span class="hljs-keyword">const</span> request = <span class="hljs-keyword">await</span> numbersClient.createRequest();
+
+  <span class="hljs-comment">// addPhoneNumbersToRequest to request accepts a maximum of 500 numbers</span>
+  <span class="hljs-comment">// at a time</span>
+  <span class="hljs-comment">// you can put up to 500,000 numbers in a single request</span>
+  <span class="hljs-keyword">await</span> request.addPhoneNumbersToRequest(phoneNumbers);
+
+  <span class="hljs-keyword">await</span> request.close();
+
+  <span class="hljs-keyword">await</span> request.waitUntilDone({
+    onProgressUpdate: <span class="hljs-function">(<span class="hljs-params">countCompleted, total</span>) =&gt;</span> {
+      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Completed <span class="hljs-subst">${countCompleted}</span> out of <span class="hljs-subst">${total}</span>`</span>);
+    }
+  })
+
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">await</span> request.mobiles.eachPage({
+    pageSize: n,
+    onPage: <span class="hljs-keyword">async</span> (numbers, pageNumber) =&gt; {
+      <span class="hljs-comment">// all of these numbers are mobiles</span>
+      <span class="hljs-comment">// do something with them!</span>
+    }
+  })
+
+  <span class="hljs-comment">// other methods on a finished request include:</span>
+  <span class="hljs-comment">// request.landlines.each();</span>
+  <span class="hljs-comment">// request.others.each();</span>
+}</code></pre><h1 id="additional-details">Additional Details</h1>
+				<h2 id="additional-carrier-info">Additional Carrier Info</h2>
+				<p>When we look up a number, we not only get information about the phone type (mobile, landline, or VOIP (other)), but we also learn the carrier and some other data.</p>
+				<p>Although at the moment (beginning of July), the Assemble API only exposes the phone type, we will be incorporating additional information into the API soon, and you will be able to access all of that information for numbers you have already looked up without additional charges.</p>
+				<p>If you need that information now, please get in touch via email at <a href="mailto:admin@politicsrewired.com">admin@politicsrewired.com</a>.</p>
+				<h1 id="can-this-also-do-_-">Can This Also Do <strong>_</strong>?</h1>
+				<p>If you are interested in a different or expanded use case for Assemble LRN, we’re likely interested!</p>
+				<p>Examples include:</p>
+				<ul>
+					<li>A version of this library in a different programming language (Python, Ruby, etc.)</li>
+					<li>A service that would use this library to clean and annotate the numbers in my CRM</li>
+				</ul>
+				<p>Contact <a href="mailto:admin@politicsrewired.com">admin@politicsrewired.com</a> with inquiries!</p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
