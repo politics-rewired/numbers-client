@@ -75,7 +75,7 @@ async function filterNumbersForType(phoneNumbers: [string], type: string) {
 
 # Full Documentation
 
-Full documentation is available [here](https://politics-rewired.github.io/numbers-client/)t .
+Full documentation is available [here](https://politics-rewired.github.io/numbers-client/).
 
 # Additional Details
 
