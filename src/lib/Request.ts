@@ -178,7 +178,7 @@ class Request {
         const numbers = response.body.data.requestResults.nodes;
 
         hasNextPage = pageInfo.hasNextPage;
-        cursor = pageInfo.cursor;
+        cursor = pageInfo.endCursor;
 
         if (useOnPageFunction) await onPage(numbers);
       }
