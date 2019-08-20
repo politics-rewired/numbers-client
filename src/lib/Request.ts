@@ -111,7 +111,16 @@ class Request {
       })
     );
 
-    const result: ProgressUpdate = response.body.data.request;
+    const {
+      completedAt,
+      progress
+    } = response.body.data.requestProgress.requestProgressResult;
+
+    const result: ProgressUpdate = {
+      completedAt: new Date(completedAt),
+      progress: parseFloat(progress)
+    };
+
     return result;
   }
 
@@ -195,8 +204,12 @@ class Request {
     eachPage: this.wrapEachPage('landline')
   };
 
-  others = {
-    eachPage: this.wrapEachPage('other')
+  invalids = {
+    eachPage: this.wrapEachPage('invalid')
+  };
+
+  voips = {
+    eachPage: this.wrapEachPage('voip')
   };
 }
 
