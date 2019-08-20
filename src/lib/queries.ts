@@ -29,10 +29,12 @@ export const CLOSE_REQUEST = `
 `;
 
 export const REQUEST_PROGRESS = `
-  query requestProgress($requestId: UUID!) {
-    request(id: $requestId) {
-      progress
-      completedAt
+  mutation requestProgress($requestId: UUID!) {
+    requestProgress(input: { requestId: $requestId }) {
+      requestProgressResult {
+        progress
+        completedAt
+      }
     }
   }
 `;
