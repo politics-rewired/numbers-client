@@ -1,19 +1,19 @@
-import request from 'superagent';
 import ql from 'superagent-graphql';
+
 import {
   ADD_PHONE_NUMBERS_TO_REQUEST,
   CLOSE_REQUEST,
   REQUEST_PROGRESS,
   REQUEST_RESULTS_BY_TYPE
 } from './queries';
+import { RequestFactory } from '../NumbersClient';
 
 const MAX_NUMBERS_PER_REQUEST = 1000;
 const DEFAULT_POLL_INTERVAL = 1000;
 const DEFAULT_PAGE_SIZE = 100;
 
 type RequestConstructorOptions = {
-  apiKey: string;
-  endpointUrl?: string;
+  requestFactory: RequestFactory;
   requestId: string;
 };
 
@@ -38,8 +38,7 @@ type AddPhoneNumbersResponse = {
 };
 
 class Request {
-  apiKey: string = undefined;
-  endpointUrl: string = undefined;
+  _requestFactroy: RequestFactory = undefined;
   requestId: string = undefined;
   closed: boolean = false;
   done: boolean = false;
@@ -48,17 +47,9 @@ class Request {
    * @param options options to initialize Request instance
    */
   constructor(options: RequestConstructorOptions) {
-    const { apiKey, endpointUrl, requestId } = options;
-    this.apiKey = apiKey;
-    this.endpointUrl = endpointUrl;
+    const { requestFactory, requestId } = options;
+    this._requestFactroy = requestFactory;
     this.requestId = requestId;
-  }
-
-  /**
-   * @hidden
-   */
-  _request() {
-    return request.post(this.endpointUrl).set('token', this.apiKey);
   }
 
   /**
@@ -78,7 +69,7 @@ class Request {
       );
     }
 
-    const response = await this._request().use(
+    const response = await this._requestFactroy().use(
       ql(ADD_PHONE_NUMBERS_TO_REQUEST, {
         phoneNumbers,
         requestId: this.requestId
@@ -92,7 +83,7 @@ class Request {
    * Close the request so that its completion can be awaited
    */
   async close() {
-    await this._request().use(
+    await this._requestFactroy().use(
       ql(CLOSE_REQUEST, {
         requestId: this.requestId
       })
@@ -105,7 +96,7 @@ class Request {
    * Return the current progress and completion status
    */
   async poll(): Promise<ProgressUpdate> {
-    const response = await this._request().use(
+    const response = await this._requestFactroy().use(
       ql(REQUEST_PROGRESS, {
         requestId: this.requestId
       })
@@ -174,7 +165,7 @@ class Request {
       let hasNextPage = true;
 
       while (hasNextPage) {
-        const response = await this._request().use(
+        const response = await this._requestFactroy().use(
           ql(REQUEST_RESULTS_BY_TYPE, {
             cursor,
             pageSize,

@@ -1,48 +1,47 @@
 import request from 'superagent';
 import ql from 'superagent-graphql';
-const DEFAULT_ENDPOINT = 'https://numbers.assemble.live/graphql';
-import { CREATE_REQUEST } from './queries';
-import { Request } from './Request';
+
+import { LookupClient } from './lookup/LookupClient';
+
+export const DEFAULT_BASE_URL = 'https://numbers.assemble.live';
+
+export type RequestFactory = () => request.SuperAgentRequest;
+export type RequestFactoryWrapper = (path?: string) => RequestFactory;
 
 type NumbersClientConstructor = {
   apiKey: string;
-  endpointUrl?: string;
+  endpointBaseUrl?: string;
 };
 
 class NumbersClient {
   apiKey: string = null;
-  endpointUrl: string = DEFAULT_ENDPOINT;
+  endpointBaseUrl: string = DEFAULT_BASE_URL;
+  lookup: LookupClient = null;
 
   /**
    * @param options NumbersClient initialization options
    */
   constructor(options: NumbersClientConstructor) {
-    const { apiKey, endpointUrl } = options;
+    const { apiKey, endpointBaseUrl } = options;
     if (!apiKey) {
       throw new Error('Parameter `apiKey` required in constructor');
     }
 
     this.apiKey = apiKey;
 
-    if (endpointUrl) {
-      this.endpointUrl = endpointUrl;
+    if (endpointBaseUrl) {
+      this.endpointBaseUrl = endpointBaseUrl;
     }
+
+    this.lookup = new LookupClient({ requestWrapper: this._requestWrapper });
   }
 
   /**
    * @hidden
    */
-  _request() {
-    return request.post(this.endpointUrl).set('token', this.apiKey);
-  }
-
-  async createRequest() {
-    const response = await this._request().use(ql(CREATE_REQUEST));
-    return new Request({
-      apiKey: this.apiKey,
-      endpointUrl: this.endpointUrl,
-      requestId: response.body.data.createRequest.request.id
-    });
+  _requestWrapper(path: string = '') {
+    return () =>
+      request.post(`${this.endpointBaseUrl}${path}`).set('token', this.apiKey);
   }
 
   /**
@@ -51,8 +50,10 @@ class NumbersClient {
    * @param query a GraphQL query string to run
    * @param variables variables matching your graphql query
    */
-  async rawGraphQLRequest(query, variables) {
-    const response = this._request().use(ql(query, variables));
+  async rawGraphQLRequest(path: string, query, variables) {
+    const response = await this._requestWrapper(path)().use(
+      ql(query, variables)
+    );
     return response.body.data;
   }
 }
