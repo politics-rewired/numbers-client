@@ -1,8 +1,9 @@
 import request from 'superagent';
 import ql from 'superagent-graphql';
-const DEFAULT_ENDPOINT = 'https://numbers.assemble.live/graphql';
-import { CREATE_REQUEST } from './queries';
-import { Request } from './Request';
+
+import { LookupClient } from './lookup/LookupClient';
+
+export const DEFAULT_ENDPOINT = 'https://numbers.assemble.live/graphql';
 
 type NumbersClientConstructor = {
   apiKey: string;
@@ -12,6 +13,7 @@ type NumbersClientConstructor = {
 class NumbersClient {
   apiKey: string = null;
   endpointUrl: string = DEFAULT_ENDPOINT;
+  lookup: LookupClient = null;
 
   /**
    * @param options NumbersClient initialization options
@@ -27,6 +29,8 @@ class NumbersClient {
     if (endpointUrl) {
       this.endpointUrl = endpointUrl;
     }
+
+    this.lookup = new LookupClient({ request: this._request });
   }
 
   /**
@@ -36,15 +40,6 @@ class NumbersClient {
     return request.post(this.endpointUrl).set('token', this.apiKey);
   }
 
-  async createRequest() {
-    const response = await this._request().use(ql(CREATE_REQUEST));
-    return new Request({
-      apiKey: this.apiKey,
-      endpointUrl: this.endpointUrl,
-      requestId: response.body.data.createRequest.request.id
-    });
-  }
-
   /**
    * If you need to make a rawGraphQL request for some access pattern
    * not supported, you can use this endpoint
@@ -52,7 +47,7 @@ class NumbersClient {
    * @param variables variables matching your graphql query
    */
   async rawGraphQLRequest(query, variables) {
-    const response = this._request().use(ql(query, variables));
+    const response = await this._request().use(ql(query, variables));
     return response.body.data;
   }
 }

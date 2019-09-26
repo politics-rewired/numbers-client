@@ -1,20 +1,26 @@
 import test from 'ava';
-import { NumbersClient } from './NumbersClient';
+import request from 'superagent';
+
+import { LookupClient } from './LookupClient';
+import { DEFAULT_ENDPOINT } from '../NumbersClient';
 
 if (!process.env.TEST_API_KEY) {
   console.log('Must set env var TEST_API_KEY to run tests');
   process.exit(1);
 }
 
+const REQUEST = () =>
+  request.post(DEFAULT_ENDPOINT).set('token', process.env.TEST_API_KEY);
+
 test('can create request', async t => {
-  const client = new NumbersClient({ apiKey: process.env.TEST_API_KEY });
+  const client = new LookupClient({ request: REQUEST });
   const request = await client.createRequest();
   console.log(request);
   t.is(typeof request.requestId, 'string');
 });
 
 test('can add numbers to request', async t => {
-  const client = new NumbersClient({ apiKey: process.env.TEST_API_KEY });
+  const client = new LookupClient({ request: REQUEST });
   const request = await client.createRequest();
   console.log(request.addPhoneNumbers);
   const addResponse = await request.addPhoneNumbers(['+12147010869']);
@@ -22,7 +28,7 @@ test('can add numbers to request', async t => {
 });
 
 test('can close request', async t => {
-  const client = new NumbersClient({ apiKey: process.env.TEST_API_KEY });
+  const client = new LookupClient({ request: REQUEST });
   const request = await client.createRequest();
   await request.addPhoneNumbers(['+12147010869']);
   const closeResponse = await request.close();
@@ -30,7 +36,7 @@ test('can close request', async t => {
 });
 
 test('can wait until done', async t => {
-  const client = new NumbersClient({ apiKey: process.env.TEST_API_KEY });
+  const client = new LookupClient({ request: REQUEST });
   const request = await client.createRequest();
   await request.addPhoneNumbers(['+12147010869']);
   await request.close();
@@ -40,7 +46,7 @@ test('can wait until done', async t => {
 });
 
 test('can paginate through mobiles', async t => {
-  const client = new NumbersClient({ apiKey: process.env.TEST_API_KEY });
+  const client = new LookupClient({ request: REQUEST });
   const request = await client.createRequest();
   await request.addPhoneNumbers(['+12147010869']);
   await request.close();

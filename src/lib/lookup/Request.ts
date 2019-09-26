@@ -12,8 +12,7 @@ const DEFAULT_POLL_INTERVAL = 1000;
 const DEFAULT_PAGE_SIZE = 100;
 
 type RequestConstructorOptions = {
-  apiKey: string;
-  endpointUrl?: string;
+  request: () => request.SuperAgentRequest;
   requestId: string;
 };
 
@@ -38,8 +37,7 @@ type AddPhoneNumbersResponse = {
 };
 
 class Request {
-  apiKey: string = undefined;
-  endpointUrl: string = undefined;
+  _request: () => request.SuperAgentRequest = undefined;
   requestId: string = undefined;
   closed: boolean = false;
   done: boolean = false;
@@ -48,17 +46,9 @@ class Request {
    * @param options options to initialize Request instance
    */
   constructor(options: RequestConstructorOptions) {
-    const { apiKey, endpointUrl, requestId } = options;
-    this.apiKey = apiKey;
-    this.endpointUrl = endpointUrl;
+    const { request, requestId } = options;
+    this._request = request;
     this.requestId = requestId;
-  }
-
-  /**
-   * @hidden
-   */
-  _request() {
-    return request.post(this.endpointUrl).set('token', this.apiKey);
   }
 
   /**

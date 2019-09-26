@@ -1,4 +1,4 @@
 import { NumbersClient } from './lib/NumbersClient';
-export * from './lib/NumbersClient';
-export * from './lib/Request';
+export * from './lib/lookup/LookupClient';
+export * from './lib/lookup/Request';
 export default NumbersClient;
