@@ -1,0 +1,19 @@
+generates:
+  ./src/generated/lookup-graphql.ts:
+    schema:
+      - https://numbers.assemble.live/lookup/graphql:
+          headers:
+            token: ${ASSEMBLE_AUTH_TOKEN}
+    # documents:
+    #   - './src/lib/lookup/mutation.ts'
+    plugins:
+      - typescript
+      - typescript-operations
+  ./src/generated/sms-graphql.ts:
+    schema:
+      - https://numbers.assemble.live/sms/graphql:
+          headers:
+            token: ${ASSEMBLE_AUTH_TOKEN}
+    plugins:
+      - typescript
+      - typescript-operations

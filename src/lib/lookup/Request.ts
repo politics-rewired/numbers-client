@@ -6,6 +6,10 @@ import {
   REQUEST_PROGRESS,
   REQUEST_RESULTS_BY_TYPE
 } from './queries';
+import {
+  RequestProgressInput,
+  RequestProgressPayload
+} from '../../generated/lookup-graphql';
 import { RequestFactory } from '../NumbersClient';
 
 const MAX_NUMBERS_PER_REQUEST = 1000;
@@ -96,16 +100,14 @@ class Request {
    * Return the current progress and completion status
    */
   async poll(): Promise<ProgressUpdate> {
+    const variables: RequestProgressInput = { requestId: this.requestId };
     const response = await this._requestFactroy().use(
-      ql(REQUEST_PROGRESS, {
-        requestId: this.requestId
-      })
+      ql(REQUEST_PROGRESS, variables)
     );
+    const requestProgress: RequestProgressPayload =
+      response.body.data.requestProgress;
 
-    const {
-      completedAt,
-      progress
-    } = response.body.data.requestProgress.requestProgressResult;
+    const { completedAt, progress } = requestProgress.requestProgressResult;
 
     const result: ProgressUpdate = {
       completedAt: new Date(completedAt),
