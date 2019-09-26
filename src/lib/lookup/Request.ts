@@ -1,18 +1,19 @@
-import request from 'superagent';
 import ql from 'superagent-graphql';
+
 import {
   ADD_PHONE_NUMBERS_TO_REQUEST,
   CLOSE_REQUEST,
   REQUEST_PROGRESS,
   REQUEST_RESULTS_BY_TYPE
 } from './queries';
+import { NumbersRequest } from '../NumbersClient';
 
 const MAX_NUMBERS_PER_REQUEST = 1000;
 const DEFAULT_POLL_INTERVAL = 1000;
 const DEFAULT_PAGE_SIZE = 100;
 
 type RequestConstructorOptions = {
-  request: () => request.SuperAgentRequest;
+  request: NumbersRequest;
   requestId: string;
 };
 
@@ -37,7 +38,7 @@ type AddPhoneNumbersResponse = {
 };
 
 class Request {
-  _request: () => request.SuperAgentRequest = undefined;
+  _request: NumbersRequest = undefined;
   requestId: string = undefined;
   closed: boolean = false;
   done: boolean = false;

@@ -3,41 +3,46 @@ import ql from 'superagent-graphql';
 
 import { LookupClient } from './lookup/LookupClient';
 
-export const DEFAULT_ENDPOINT = 'https://numbers.assemble.live/graphql';
+export const DEFAULT_BASE_URL = 'https://numbers.assemble.live';
+
+export type NumbersRequest = () => request.SuperAgentRequest;
+export type RequestWrapper = (path?: string) => request.SuperAgentRequest;
 
 type NumbersClientConstructor = {
   apiKey: string;
-  endpointUrl?: string;
+  endpointBaseUrl?: string;
 };
 
 class NumbersClient {
   apiKey: string = null;
-  endpointUrl: string = DEFAULT_ENDPOINT;
+  endpointBaseUrl: string = DEFAULT_BASE_URL;
   lookup: LookupClient = null;
 
   /**
    * @param options NumbersClient initialization options
    */
   constructor(options: NumbersClientConstructor) {
-    const { apiKey, endpointUrl } = options;
+    const { apiKey, endpointBaseUrl } = options;
     if (!apiKey) {
       throw new Error('Parameter `apiKey` required in constructor');
     }
 
     this.apiKey = apiKey;
 
-    if (endpointUrl) {
-      this.endpointUrl = endpointUrl;
+    if (endpointBaseUrl) {
+      this.endpointBaseUrl = endpointBaseUrl;
     }
 
-    this.lookup = new LookupClient({ request: this._request });
+    this.lookup = new LookupClient({ requestWrapper: this._requestWrapper });
   }
 
   /**
    * @hidden
    */
-  _request() {
-    return request.post(this.endpointUrl).set('token', this.apiKey);
+  _requestWrapper(path: string = '') {
+    return request
+      .post(`${this.endpointBaseUrl}${path}`)
+      .set('token', this.apiKey);
   }
 
   /**
@@ -46,8 +51,8 @@ class NumbersClient {
    * @param query a GraphQL query string to run
    * @param variables variables matching your graphql query
    */
-  async rawGraphQLRequest(query, variables) {
-    const response = await this._request().use(ql(query, variables));
+  async rawGraphQLRequest(path: string, query, variables) {
+    const response = await this._requestWrapper(path).use(ql(query, variables));
     return response.body.data;
   }
 }
