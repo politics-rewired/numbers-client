@@ -5,8 +5,8 @@ import { LookupClient } from './lookup/LookupClient';
 
 export const DEFAULT_BASE_URL = 'https://numbers.assemble.live';
 
-export type NumbersRequest = () => request.SuperAgentRequest;
-export type RequestWrapper = (path?: string) => request.SuperAgentRequest;
+export type RequestFactory = () => request.SuperAgentRequest;
+export type RequestFactoryWrapper = (path?: string) => RequestFactory;
 
 type NumbersClientConstructor = {
   apiKey: string;
@@ -40,9 +40,8 @@ class NumbersClient {
    * @hidden
    */
   _requestWrapper(path: string = '') {
-    return request
-      .post(`${this.endpointBaseUrl}${path}`)
-      .set('token', this.apiKey);
+    return () =>
+      request.post(`${this.endpointBaseUrl}${path}`).set('token', this.apiKey);
   }
 
   /**
@@ -52,7 +51,9 @@ class NumbersClient {
    * @param variables variables matching your graphql query
    */
   async rawGraphQLRequest(path: string, query, variables) {
-    const response = await this._requestWrapper(path).use(ql(query, variables));
+    const response = await this._requestWrapper(path)().use(
+      ql(query, variables)
+    );
     return response.body.data;
   }
 }

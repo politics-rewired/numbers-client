@@ -1,17 +1,17 @@
 import test from 'ava';
 import request from 'superagent';
 
-import { LookupClient, LOOKUP_GRAPHQL_PATH } from './LookupClient';
-import { RequestWrapper, DEFAULT_BASE_URL } from '../NumbersClient';
+import { LookupClient } from './LookupClient';
+import { RequestFactoryWrapper, DEFAULT_BASE_URL } from '../NumbersClient';
 
 if (!process.env.TEST_API_KEY) {
   console.log('Must set env var TEST_API_KEY to run tests');
   process.exit(1);
 }
 
-const REQUEST: RequestWrapper = () =>
+const REQUEST: RequestFactoryWrapper = path => () =>
   request
-    .post(`${DEFAULT_BASE_URL}${LOOKUP_GRAPHQL_PATH}`)
+    .post(`${DEFAULT_BASE_URL}${path}`)
     .set('token', process.env.TEST_API_KEY);
 
 test('can create request', async t => {

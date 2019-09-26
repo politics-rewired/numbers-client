@@ -2,17 +2,17 @@ import ql from 'superagent-graphql';
 
 import { CREATE_REQUEST } from './queries';
 import { Request } from './Request';
-import { RequestWrapper } from '../NumbersClient';
+import { RequestFactoryWrapper, RequestFactory } from '../NumbersClient';
 
 export const LOOKUP_GRAPHQL_PATH = '/lookup/graphql';
 
 type LookupClientConstructor = {
-  requestWrapper: RequestWrapper;
+  requestWrapper: RequestFactoryWrapper;
   lookupGraphqlPath?: string;
 };
 
 class LookupClient {
-  _requestWrapper: RequestWrapper = null;
+  _requestFactory: RequestFactory = null;
   lookupGraphqlPath: string = LOOKUP_GRAPHQL_PATH;
 
   /**
@@ -25,21 +25,17 @@ class LookupClient {
       throw new Error('Parameter `request` required in constructor');
     }
 
-    this._requestWrapper = requestWrapper;
-
     if (lookupGraphqlPath) {
       this.lookupGraphqlPath = lookupGraphqlPath;
     }
-  }
 
-  _request() {
-    return this._requestWrapper(this.lookupGraphqlPath);
+    this._requestFactory = requestWrapper(this.lookupGraphqlPath);
   }
 
   async createRequest() {
-    const response = await this._request().use(ql(CREATE_REQUEST));
+    const response = await this._requestFactory().use(ql(CREATE_REQUEST));
     return new Request({
-      request: this._request,
+      requestFactory: this._requestFactory,
       requestId: response.body.data.createRequest.request.id
     });
   }
