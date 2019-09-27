@@ -1,0 +1,24 @@
+generates:
+  ./src/lib/lookup/types.d.ts:
+    schema:
+      - https://numbers.assemble.live/graphql:
+          headers:
+            token: ${ASSEMBLE_AUTH_TOKEN}
+    plugins:
+      - typescript
+
+  # TODO:
+  # ./src/lib/lookup/types.d.ts:
+  #   schema:
+  #     - https://numbers.assemble.live/lookup/graphql:
+  #         headers:
+  #           token: ${ASSEMBLE_AUTH_TOKEN}
+  #   plugins:
+  #     - typescript
+  # ./src/lib/sms/types.d.ts:
+  #   schema:
+  #     - https://numbers.assemble.live/sms/graphql:
+  #         headers:
+  #           token: ${ASSEMBLE_AUTH_TOKEN}
+  #   plugins:
+  #     - typescript
