@@ -80,7 +80,8 @@
     ],
     "sources": [
       "build/main/**/*.js"
-    ]
+    ],
+    "serial": true
   },
   "config": {
     "commitizen": {

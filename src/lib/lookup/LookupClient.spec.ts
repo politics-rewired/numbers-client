@@ -17,14 +17,12 @@ const REQUEST: RequestFactoryWrapper = path => () =>
 test('can create request', async t => {
   const client = new LookupClient({ requestWrapper: REQUEST });
   const request = await client.createRequest();
-  console.log(request);
   t.is(typeof request.requestId, 'string');
 });
 
 test('can add numbers to request', async t => {
   const client = new LookupClient({ requestWrapper: REQUEST });
   const request = await client.createRequest();
-  console.log(request.addPhoneNumbers);
   const addResponse = await request.addPhoneNumbers(['+12147010869']);
   t.is(typeof addResponse.countAdded, 'number');
 });
@@ -42,7 +40,6 @@ test('can wait until done', async t => {
   const request = await client.createRequest();
   await request.addPhoneNumbers(['+12147010869']);
   await request.close();
-  console.log(request.requestId);
   const waitUntilDoneResponse = await request.waitUntilDone({});
   t.is(typeof waitUntilDoneResponse, 'undefined');
 });

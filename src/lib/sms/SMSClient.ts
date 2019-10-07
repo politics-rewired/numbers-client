@@ -1,6 +1,12 @@
 import ql from 'superagent-graphql';
 
-import { CREATE_SENDING_LOCATION } from './queries';
+import {
+  GET_SENDING_LOCATIONS,
+  CREATE_SENDING_LOCATION,
+  UPDATE_SENDING_LOCATION,
+  DELETE_SENDING_LOCATION,
+  SEND_MESSAGE
+} from './queries';
 import { RequestFactoryWrapper, RequestFactory } from '../NumbersClient';
 
 export const SMS_GRAPHQL_PATH = '/sms/graphql';
@@ -10,6 +16,62 @@ interface CreateSendingLocationInput {
   referenceName: string;
   center: string;
 }
+
+interface UpdateSendingLocationPatch {
+  referenceName?: string;
+  areaCodes?: string[];
+  center?: string;
+}
+
+interface SendMessageInput {
+  profileId: string;
+  to: string;
+  body: string;
+  mediaUrls?: [string];
+  contactZipCode?: string;
+}
+
+interface SendingLocation {
+  id: string;
+  areaCodes: string[];
+  center: string;
+  referenceName: string;
+}
+
+interface QueryResult<T> {
+  data: T;
+  errors?: string[];
+}
+
+type CreateSendingLocationResult = QueryResult<{
+  createSendingLocation: { sendingLocation: SendingLocation };
+}>;
+
+type UpdateSendingLocationResult = QueryResult<{
+  updateSendingLocation: { sendingLocation: SendingLocation };
+}>;
+
+type GetSendingLocationsResult = QueryResult<{
+  sendingLocations: {
+    nodes: SendingLocation[];
+  };
+}>;
+
+type DeleteSendingLocationResult = QueryResult<{
+  deleteSendingLocation: {
+    sendingLocation: {
+      id: string;
+    };
+  };
+}>;
+
+type SendMessageResult = QueryResult<{
+  sendMessage: {
+    outboundMessage: {
+      id: string;
+    };
+  };
+}>;
 
 type SMSClientConstructor = {
   requestWrapper: RequestFactoryWrapper;
@@ -37,16 +99,49 @@ class SMSClient {
     this._requestFactory = requestWrapper(this.smsGraphqlPath);
   }
 
-  async createSendingLocation(args: CreateSendingLocationInput) {
-    const response = await this._requestFactory().use(
+  request = () => this._requestFactory();
+
+  createSendingLocation = async (
+    args: CreateSendingLocationInput
+  ): Promise<CreateSendingLocationResult> => {
+    const response = await this.request().use(
       ql(CREATE_SENDING_LOCATION, args)
     );
     return response.body;
-  }
+  };
 
-  async sendMessage() {
-    // TODO: stub
-  }
+  updateSendingLocation = async (
+    id: string,
+    patch: UpdateSendingLocationPatch
+  ): Promise<UpdateSendingLocationResult> => {
+    const response = await this.request().use(
+      ql(UPDATE_SENDING_LOCATION, { id, patch })
+    );
+    return response.body;
+  };
+
+  deleteSendingLocation = async (
+    id: string
+  ): Promise<DeleteSendingLocationResult> => {
+    const response = await this.request().use(
+      ql(DELETE_SENDING_LOCATION, { id })
+    );
+    return response.body;
+  };
+
+  getSendingLocations = async (
+    profileId: string
+  ): Promise<GetSendingLocationsResult> => {
+    const response = await this.request().use(
+      ql(GET_SENDING_LOCATIONS, { profileId })
+    );
+    return response.body;
+  };
+
+  sendMessage = async (args: SendMessageInput): Promise<SendMessageResult> => {
+    const response = await this.request().use(ql(SEND_MESSAGE, args));
+    return response.body;
+  };
 }
 
 export { SMSClient };
