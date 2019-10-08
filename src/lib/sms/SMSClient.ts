@@ -38,9 +38,15 @@ interface SendingLocation {
   referenceName: string;
 }
 
+interface GraphQLError {
+  message: string;
+  locations: string[];
+  path: string[];
+}
+
 interface QueryResult<T> {
   data: T;
-  errors?: string[];
+  errors?: GraphQLError[];
 }
 
 type CreateSendingLocationResult = QueryResult<{

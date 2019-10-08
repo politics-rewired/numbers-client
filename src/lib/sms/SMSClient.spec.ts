@@ -14,7 +14,16 @@ if (!process.env.TEST_PROFILE_ID) {
   process.exit(1);
 }
 
-const { TEST_API_KEY, TEST_PROFILE_ID } = process.env;
+if (!process.env.TEST_DESTINATION_PHONE_NUMBER) {
+  console.log('Must set env var TEST_DESTINATION_PHONE_NUMBER to run tests');
+  process.exit(1);
+}
+
+const {
+  TEST_API_KEY,
+  TEST_PROFILE_ID,
+  TEST_DESTINATION_PHONE_NUMBER
+} = process.env;
 const TEST_CENTER = '11205';
 const OTHER_AREA_CODE = '212';
 
@@ -67,5 +76,22 @@ test('can delete sending locations', async t => {
   t.is(
     deleteResponse.data.deleteSendingLocation.sendingLocation.id,
     sendingLocationId
+  );
+});
+
+test('can send messages', async t => {
+  const response = await client.sendMessage({
+    to: TEST_DESTINATION_PHONE_NUMBER,
+    profileId: TEST_PROFILE_ID,
+    body: 'hello! the test was run.'
+  });
+
+  /**
+   * Failure is a success for the client
+   * - it failed because we deleted the sending location in the previous test
+   */
+  t.is(
+    response.errors[0].message,
+    'Must create a sending location before sending messages'
   );
 });
