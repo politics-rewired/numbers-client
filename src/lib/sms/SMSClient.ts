@@ -95,7 +95,7 @@ class SMSClient {
     const { requestWrapper, smsGraphqlPath } = options;
 
     if (!requestWrapper) {
-      throw new Error('Parameter `request` required in constructor');
+      throw new Error('Parameter `requestWrapper` required in constructor');
     }
 
     if (smsGraphqlPath) {
