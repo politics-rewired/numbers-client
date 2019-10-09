@@ -1,6 +1,8 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+### [1.2.1](https://github.com/ben-pr-p/numbers-client/compare/v1.2.0...v1.2.1) (2019-10-09)
 
 <a name="1.0.7"></a>
 ## [1.0.7](https://github.com/ben-pr-p/numbers-client/compare/v1.0.5...v1.0.7) (2019-07-11)
