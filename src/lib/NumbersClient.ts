@@ -1,7 +1,9 @@
 import request from 'superagent';
+import crypto from 'crypto';
 import ql from 'superagent-graphql';
 
 import { LookupClient } from './lookup/LookupClient';
+import { SMSClient } from './sms/SMSClient';
 
 export const DEFAULT_BASE_URL = 'https://numbers.assemble.live';
 
@@ -17,6 +19,7 @@ class NumbersClient {
   apiKey: string = null;
   endpointBaseUrl: string = DEFAULT_BASE_URL;
   lookup: LookupClient = null;
+  sms: SMSClient = null;
 
   /**
    * @param options NumbersClient initialization options
@@ -34,6 +37,7 @@ class NumbersClient {
     }
 
     this.lookup = new LookupClient({ requestWrapper: this._requestWrapper });
+    this.sms = new SMSClient({ requestWrapper: this._requestWrapper });
   }
 
   /**
@@ -48,12 +52,34 @@ class NumbersClient {
    * @param query a GraphQL query string to run
    * @param variables variables matching your graphql query
    */
-  async rawGraphQLRequest(path: string, query, variables) {
+  rawGraphQLRequest = async (path: string, query, variables) => {
     const response = await this._requestWrapper(path)().use(
       ql(query, variables)
     );
     return response.body.data;
-  }
+  };
+
+  validateInboundMessageWebhook = (messageId: string, signature: string) => {
+    const expectedSignature = crypto
+      .createHmac('sha1', this.apiKey)
+      .update(messageId)
+      .digest('hex');
+
+    return signature === expectedSignature;
+  };
+
+  validateDeliveryReportWebhook = (
+    messageId: string,
+    eventType: string,
+    signature: string
+  ) => {
+    const expectedSignature = crypto
+      .createHmac('sha1', this.apiKey)
+      .update(`${messageId}|${eventType}`)
+      .digest('hex');
+
+    return signature === expectedSignature;
+  };
 }
 
 export { NumbersClient };
