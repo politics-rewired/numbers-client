@@ -31,7 +31,7 @@ interface SendMessageInput {
   contactZipCode?: string;
 }
 
-interface SendingLocation {
+export interface SendingLocation {
   id: string;
   areaCodes: string[];
   center: string;
