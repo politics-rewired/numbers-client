@@ -26,6 +26,7 @@ const {
 } = process.env;
 const TEST_CENTER = '11205';
 const OTHER_AREA_CODE = '212';
+const PURCHASING_STRATEGY = 'same-state-by-distance';
 const randomInt = Math.round(Math.random() * 1000);
 const LOCATION_REFERENCE_NAME = `TestLocation_${Date.now()}_${randomInt}`;
 
@@ -41,6 +42,7 @@ test('can create sending location', async t => {
   const response = await client.createSendingLocation({
     profileId: TEST_PROFILE_ID,
     referenceName: LOCATION_REFERENCE_NAME,
+    purchasingStrategy: PURCHASING_STRATEGY,
     center: TEST_CENTER
   });
 

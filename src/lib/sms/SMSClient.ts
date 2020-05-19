@@ -15,6 +15,7 @@ export const SMS_GRAPHQL_PATH = '/sms/graphql';
 interface CreateSendingLocationInput {
   profileId: string;
   referenceName: string;
+  purchasingStrategy: string;
   center: string;
 }
 
