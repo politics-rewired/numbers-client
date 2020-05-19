@@ -26,7 +26,7 @@ const {
 } = process.env;
 const TEST_CENTER = '11205';
 const OTHER_AREA_CODE = '212';
-const PURCHASING_STRATEGY = 'same-state-by-distance';
+const PURCHASING_STRATEGY = 'SAME_STATE_BY_DISTANCE';
 const randomInt = Math.round(Math.random() * 1000);
 const LOCATION_REFERENCE_NAME = `TestLocation_${Date.now()}_${randomInt}`;
 
