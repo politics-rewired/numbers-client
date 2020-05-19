@@ -8,6 +8,7 @@ import {
   SEND_MESSAGE
 } from './queries';
 import { RequestFactoryWrapper, RequestFactory } from '../NumbersClient';
+import { raiseGqlErrors } from '../util';
 
 export const SMS_GRAPHQL_PATH = '/sms/graphql';
 
@@ -110,9 +111,9 @@ class SMSClient {
   createSendingLocation = async (
     args: CreateSendingLocationInput
   ): Promise<CreateSendingLocationResult> => {
-    const response = await this.request().use(
-      ql(CREATE_SENDING_LOCATION, args)
-    );
+    const response = await this.request()
+      .use(ql(CREATE_SENDING_LOCATION, args))
+      .then(raiseGqlErrors);
     return response.body;
   };
 
@@ -120,32 +121,34 @@ class SMSClient {
     id: string,
     patch: UpdateSendingLocationPatch
   ): Promise<UpdateSendingLocationResult> => {
-    const response = await this.request().use(
-      ql(UPDATE_SENDING_LOCATION, { id, patch })
-    );
+    const response = await this.request()
+      .use(ql(UPDATE_SENDING_LOCATION, { id, patch }))
+      .then(raiseGqlErrors);
     return response.body;
   };
 
   deleteSendingLocation = async (
     id: string
   ): Promise<DeleteSendingLocationResult> => {
-    const response = await this.request().use(
-      ql(DELETE_SENDING_LOCATION, { id })
-    );
+    const response = await this.request()
+      .use(ql(DELETE_SENDING_LOCATION, { id }))
+      .then(raiseGqlErrors);
     return response.body;
   };
 
   getSendingLocations = async (
     profileId: string
   ): Promise<GetSendingLocationsResult> => {
-    const response = await this.request().use(
-      ql(GET_SENDING_LOCATIONS, { profileId })
-    );
+    const response = await this.request()
+      .use(ql(GET_SENDING_LOCATIONS, { profileId }))
+      .then(raiseGqlErrors);
     return response.body;
   };
 
   sendMessage = async (args: SendMessageInput): Promise<SendMessageResult> => {
-    const response = await this.request().use(ql(SEND_MESSAGE, args));
+    const response = await this.request()
+      .use(ql(SEND_MESSAGE, args))
+      .then(raiseGqlErrors);
     return response.body;
   };
 }

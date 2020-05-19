@@ -3,6 +3,7 @@ import ql from 'superagent-graphql';
 import { CREATE_REQUEST } from './queries';
 import { Request } from './Request';
 import { RequestFactoryWrapper, RequestFactory } from '../NumbersClient';
+import { raiseGqlErrors } from '../util';
 
 export const LOOKUP_GRAPHQL_PATH = '/lookup/graphql';
 
@@ -33,7 +34,9 @@ class LookupClient {
   }
 
   async createRequest() {
-    const response = await this._requestFactory().use(ql(CREATE_REQUEST));
+    const response = await this._requestFactory()
+      .use(ql(CREATE_REQUEST))
+      .then(raiseGqlErrors);
     return new Request({
       requestFactory: this._requestFactory,
       requestId: response.body.data.createRequest.request.id

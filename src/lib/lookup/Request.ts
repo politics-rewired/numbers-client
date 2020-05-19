@@ -7,6 +7,7 @@ import {
   REQUEST_RESULTS_BY_TYPE
 } from './queries';
 import { RequestFactory } from '../NumbersClient';
+import { raiseGqlErrors } from '../util';
 
 const MAX_NUMBERS_PER_REQUEST = 1000;
 const DEFAULT_POLL_INTERVAL = 1000;
@@ -69,12 +70,14 @@ class Request {
       );
     }
 
-    const response = await this._requestFactroy().use(
-      ql(ADD_PHONE_NUMBERS_TO_REQUEST, {
-        phoneNumbers,
-        requestId: this.requestId
-      })
-    );
+    const response = await this._requestFactroy()
+      .use(
+        ql(ADD_PHONE_NUMBERS_TO_REQUEST, {
+          phoneNumbers,
+          requestId: this.requestId
+        })
+      )
+      .then(raiseGqlErrors);
 
     return response.body.data.addPhoneNumbersToRequest;
   }
@@ -83,11 +86,13 @@ class Request {
    * Close the request so that its completion can be awaited
    */
   async close() {
-    await this._requestFactroy().use(
-      ql(CLOSE_REQUEST, {
-        requestId: this.requestId
-      })
-    );
+    await this._requestFactroy()
+      .use(
+        ql(CLOSE_REQUEST, {
+          requestId: this.requestId
+        })
+      )
+      .then(raiseGqlErrors);
 
     this.closed = true;
   }
@@ -96,11 +101,13 @@ class Request {
    * Return the current progress and completion status
    */
   async poll(): Promise<ProgressUpdate> {
-    const response = await this._requestFactroy().use(
-      ql(REQUEST_PROGRESS, {
-        requestId: this.requestId
-      })
-    );
+    const response = await this._requestFactroy()
+      .use(
+        ql(REQUEST_PROGRESS, {
+          requestId: this.requestId
+        })
+      )
+      .then(raiseGqlErrors);
 
     const {
       completedAt,
@@ -165,14 +172,16 @@ class Request {
       let hasNextPage = true;
 
       while (hasNextPage) {
-        const response = await this._requestFactroy().use(
-          ql(REQUEST_RESULTS_BY_TYPE, {
-            cursor,
-            pageSize,
-            phoneType: phoneType.toUpperCase(),
-            requestId: this.requestId
-          })
-        );
+        const response = await this._requestFactroy()
+          .use(
+            ql(REQUEST_RESULTS_BY_TYPE, {
+              cursor,
+              pageSize,
+              phoneType: phoneType.toUpperCase(),
+              requestId: this.requestId
+            })
+          )
+          .then(raiseGqlErrors);
 
         const pageInfo = response.body.data.requestResults.pageInfo;
         const numbers = response.body.data.requestResults.nodes;

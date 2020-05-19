@@ -4,6 +4,7 @@ import ql from 'superagent-graphql';
 
 import { LookupClient } from './lookup/LookupClient';
 import { SMSClient } from './sms/SMSClient';
+import { raiseGqlErrors } from './util';
 
 export const DEFAULT_BASE_URL = 'https://numbers.assemble.live';
 
@@ -53,9 +54,9 @@ class NumbersClient {
    * @param variables variables matching your graphql query
    */
   rawGraphQLRequest = async (path: string, query, variables) => {
-    const response = await this._requestWrapper(path)().use(
-      ql(query, variables)
-    );
+    const response = await this._requestWrapper(path)()
+      .use(ql(query, variables))
+      .then(raiseGqlErrors);
     return response.body.data;
   };
 
