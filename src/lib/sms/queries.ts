@@ -12,8 +12,8 @@ export const GET_SENDING_LOCATIONS = `
 `;
 
 export const CREATE_SENDING_LOCATION = `
-  mutation createSendingLocation($profileId: UUID!, $referenceName: String!, $center: ZipCode!) {
-    createSendingLocation(input: { sendingLocation: { profileId: $profileId,  referenceName: $referenceName, center: $center }}) {
+  mutation createSendingLocation($profileId: UUID!, $referenceName: String!, $purchasingStrategy: NumberPurchasingStrategy!, $center: ZipCode!) {
+    createSendingLocation(input: { sendingLocation: { profileId: $profileId,  referenceName: $referenceName, purchasingStrategy: $purchasingStrategy, center: $center }}) {
       sendingLocation {
         areaCodes
         id
