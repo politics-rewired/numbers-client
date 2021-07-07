@@ -43,7 +43,7 @@ const options = {
 
 const numbersClient = new NumbersClient(options);
 
-async function filterNumbersForType(phoneNumbers: [string], type: string) {
+async function filterNumbersForType(phoneNumbers: string[], type: string) {
   const request = await numbersClient.lookup.createRequest();
 
   // addPhoneNumbers to request accepts a maximum of 500 numbers
