@@ -35,7 +35,7 @@ type WaitUntilDoneOptions = {
 
 type AddPhoneNumbersResponse = {
   countAdded: number;
-  invalidNumbers: [string];
+  invalidNumbers: string[];
 };
 
 class Request {
@@ -58,7 +58,7 @@ class Request {
    * @param phoneNumbers the phone numbers to add – up to 1000
    */
   async addPhoneNumbers(
-    phoneNumbers: [string]
+    phoneNumbers: string[]
   ): Promise<AddPhoneNumbersResponse> {
     if (this.closed) {
       throw new Error(`You cannot add numbers to a closed request`);

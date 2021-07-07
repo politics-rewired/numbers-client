@@ -29,7 +29,7 @@ interface SendMessageInput {
   profileId: string;
   to: string;
   body: string;
-  mediaUrls?: [string];
+  mediaUrls?: string[];
   contactZipCode?: string;
   sendBefore: string;
 }
