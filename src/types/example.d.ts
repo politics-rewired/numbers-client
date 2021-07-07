@@ -22,13 +22,13 @@ declare module 'sha.js' {
   type HexBase64Latin1Encoding = 'latin1' | 'hex' | 'base64';
 
   export interface Hash extends NodeJS.ReadWriteStream {
-    // tslint:disable:no-method-signature
+    /* eslint-disable  */
     update(
       data: string | Buffer | DataView,
       inputEncoding?: Utf8AsciiLatin1Encoding
     ): Hash;
     digest(): Buffer;
     digest(encoding: HexBase64Latin1Encoding): string;
-    // tslint:enable:no-method-signature
+    /* eslint-enable  */
   }
 }
