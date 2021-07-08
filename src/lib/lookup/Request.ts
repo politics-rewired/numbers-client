@@ -4,7 +4,7 @@ import {
   ADD_PHONE_NUMBERS_TO_REQUEST,
   CLOSE_REQUEST,
   REQUEST_PROGRESS,
-  REQUEST_RESULTS_BY_TYPE
+  REQUEST_RESULTS_BY_TYPE,
 } from './queries';
 import { RequestFactory } from '../NumbersClient';
 import { raiseGqlErrors } from '../util';
@@ -20,7 +20,7 @@ type RequestConstructorOptions = {
 
 type EachPageOptions = {
   pageSize?: number;
-  onPage?: (numbers: [{ phoneNumber: string }]) => Promise<any>;
+  onPage?: (numbers: [{ phoneNumber: string }]) => Promise<void>;
 };
 
 type ProgressUpdate = {
@@ -30,7 +30,7 @@ type ProgressUpdate = {
 
 type WaitUntilDoneOptions = {
   pollInterval?: number;
-  onProgressUpdate?: (progress: number) => any;
+  onProgressUpdate?: (progress: number) => void;
 };
 
 type AddPhoneNumbersResponse = {
@@ -41,8 +41,8 @@ type AddPhoneNumbersResponse = {
 class Request {
   _requestFactroy: RequestFactory = undefined;
   requestId: string = undefined;
-  closed: boolean = false;
-  done: boolean = false;
+  closed = false;
+  done = false;
 
   /**
    * @param options options to initialize Request instance
@@ -55,7 +55,7 @@ class Request {
 
   /**
    * Add phone numbers to a created, open request
-   * @param phoneNumbers the phone numbers to add – up to 1000
+   * @param phoneNumbers the phone numbers to add – up to 1000
    */
   async addPhoneNumbers(
     phoneNumbers: string[]
@@ -74,7 +74,7 @@ class Request {
       .use(
         ql(ADD_PHONE_NUMBERS_TO_REQUEST, {
           phoneNumbers,
-          requestId: this.requestId
+          requestId: this.requestId,
         })
       )
       .then(raiseGqlErrors);
@@ -89,7 +89,7 @@ class Request {
     await this._requestFactroy()
       .use(
         ql(CLOSE_REQUEST, {
-          requestId: this.requestId
+          requestId: this.requestId,
         })
       )
       .then(raiseGqlErrors);
@@ -104,19 +104,17 @@ class Request {
     const response = await this._requestFactroy()
       .use(
         ql(REQUEST_PROGRESS, {
-          requestId: this.requestId
+          requestId: this.requestId,
         })
       )
       .then(raiseGqlErrors);
 
-    const {
-      completedAt,
-      progress
-    } = response.body.data.requestProgress.requestProgressResult;
+    const { completedAt, progress } =
+      response.body.data.requestProgress.requestProgressResult;
 
     const result: ProgressUpdate = {
       completedAt: new Date(completedAt),
-      progress: parseFloat(progress)
+      progress: parseFloat(progress),
     };
 
     return result;
@@ -126,7 +124,7 @@ class Request {
    * @hidden
    */
   sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**
@@ -141,7 +139,7 @@ class Request {
       );
     }
 
-    let usePollingFunction = typeof onProgressUpdate === 'function';
+    const usePollingFunction = typeof onProgressUpdate === 'function';
 
     while (!this.done) {
       const pollResult = await this.poll();
@@ -166,7 +164,7 @@ class Request {
     const eachPage = async (options: EachPageOptions) => {
       const { pageSize = DEFAULT_PAGE_SIZE, onPage } = options;
 
-      let useOnPageFunction = typeof onPage === 'function';
+      const useOnPageFunction = typeof onPage === 'function';
 
       let cursor: string;
       let hasNextPage = true;
@@ -178,7 +176,7 @@ class Request {
               cursor,
               pageSize,
               phoneType: phoneType.toUpperCase(),
-              requestId: this.requestId
+              requestId: this.requestId,
             })
           )
           .then(raiseGqlErrors);
@@ -197,19 +195,19 @@ class Request {
   }
 
   mobiles = {
-    eachPage: this.wrapEachPage('mobile')
+    eachPage: this.wrapEachPage('mobile'),
   };
 
   landlines = {
-    eachPage: this.wrapEachPage('landline')
+    eachPage: this.wrapEachPage('landline'),
   };
 
   invalids = {
-    eachPage: this.wrapEachPage('invalid')
+    eachPage: this.wrapEachPage('invalid'),
   };
 
   voips = {
-    eachPage: this.wrapEachPage('voip')
+    eachPage: this.wrapEachPage('voip'),
   };
 }
 

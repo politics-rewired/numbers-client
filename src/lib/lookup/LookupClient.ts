@@ -39,7 +39,7 @@ class LookupClient {
       .then(raiseGqlErrors);
     return new Request({
       requestFactory: this._requestFactory,
-      requestId: response.body.data.createRequest.request.id
+      requestId: response.body.data.createRequest.request.id,
     });
   }
 }

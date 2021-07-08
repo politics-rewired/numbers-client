@@ -5,7 +5,7 @@ import {
   CREATE_SENDING_LOCATION,
   UPDATE_SENDING_LOCATION,
   DELETE_SENDING_LOCATION,
-  SEND_MESSAGE
+  SEND_MESSAGE,
 } from './queries';
 import { RequestFactoryWrapper, RequestFactory } from '../NumbersClient';
 import { raiseGqlErrors } from '../util';

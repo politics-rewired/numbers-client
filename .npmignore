@@ -3,12 +3,13 @@ src
 test
 tsconfig.json
 tsconfig.module.json
-tslint.json
+.eslintignore
+.eslintrc.js
+.prettierignore
+.prettierrc
 .travis.yml
 .github
-.prettierignore
 .vscode
-.circleci
 build/docs
 **/*.spec.*
 coverage
