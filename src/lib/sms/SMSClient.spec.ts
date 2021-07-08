@@ -25,17 +25,17 @@ const PURCHASING_STRATEGY = 'SAME_STATE_BY_DISTANCE';
 const randomInt = Math.round(Math.random() * 1000);
 const LOCATION_REFERENCE_NAME = `TestLocation_${Date.now()}_${randomInt}`;
 
-const REQUEST: RequestFactoryWrapper = path => () =>
+const REQUEST: RequestFactoryWrapper = (path) => () =>
   request.post(`${DEFAULT_BASE_URL}${path}`).set('token', TEST_API_KEY);
 
 const client = new SMSClient({ requestWrapper: REQUEST });
 
-test('can create sending location', async t => {
+test('can create sending location', async (t) => {
   const response = await client.createSendingLocation({
     profileId: TEST_PROFILE_ID,
     referenceName: LOCATION_REFERENCE_NAME,
     purchasingStrategy: PURCHASING_STRATEGY,
-    center: TEST_CENTER
+    center: TEST_CENTER,
   });
 
   t.is(typeof response.data.createSendingLocation.sendingLocation, 'object');

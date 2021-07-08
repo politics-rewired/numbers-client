@@ -44,8 +44,10 @@ class NumbersClient {
   /**
    * @hidden
    */
-  _requestWrapper = (path: string = '') => () =>
-    request.post(`${this.endpointBaseUrl}${path}`).set('token', this.apiKey);
+  _requestWrapper =
+    (path = '') =>
+    () =>
+      request.post(`${this.endpointBaseUrl}${path}`).set('token', this.apiKey);
 
   /**
    * If you need to make a rawGraphQL request for some access pattern

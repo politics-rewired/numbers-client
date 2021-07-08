@@ -9,25 +9,25 @@ if (!process.env.TEST_API_KEY) {
   process.exit(1);
 }
 
-const REQUEST: RequestFactoryWrapper = path => () =>
+const REQUEST: RequestFactoryWrapper = (path) => () =>
   request
     .post(`${DEFAULT_BASE_URL}${path}`)
     .set('token', process.env.TEST_API_KEY);
 
-test('can create request', async t => {
+test('can create request', async (t) => {
   const client = new LookupClient({ requestWrapper: REQUEST });
   const request = await client.createRequest();
   t.is(typeof request.requestId, 'string');
 });
 
-test('can add numbers to request', async t => {
+test('can add numbers to request', async (t) => {
   const client = new LookupClient({ requestWrapper: REQUEST });
   const request = await client.createRequest();
   const addResponse = await request.addPhoneNumbers(['+12147010869']);
   t.is(typeof addResponse.countAdded, 'number');
 });
 
-test('can close request', async t => {
+test('can close request', async (t) => {
   const client = new LookupClient({ requestWrapper: REQUEST });
   const request = await client.createRequest();
   await request.addPhoneNumbers(['+12147010869']);
@@ -35,7 +35,7 @@ test('can close request', async t => {
   t.is(typeof closeResponse, 'undefined');
 });
 
-test('can wait until done', async t => {
+test('can wait until done', async (t) => {
   const client = new LookupClient({ requestWrapper: REQUEST });
   const request = await client.createRequest();
   await request.addPhoneNumbers(['+12147010869']);
@@ -44,7 +44,7 @@ test('can wait until done', async t => {
   t.is(typeof waitUntilDoneResponse, 'undefined');
 });
 
-test('can paginate through mobiles', async t => {
+test('can paginate through mobiles', async (t) => {
   const client = new LookupClient({ requestWrapper: REQUEST });
   const request = await client.createRequest();
   await request.addPhoneNumbers(['+12147010869']);
@@ -54,9 +54,9 @@ test('can paginate through mobiles', async t => {
   const mobiles = [];
 
   await request.mobiles.eachPage({
-    onPage: async numbers => {
-      numbers.forEach(n => mobiles.push(n));
-    }
+    onPage: async (numbers) => {
+      numbers.forEach((n) => mobiles.push(n));
+    },
   });
 
   t.is(typeof mobiles, 'object');

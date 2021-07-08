@@ -5,7 +5,9 @@ export class SwitchboardError extends Error {
 
   constructor(errors: any[] = []) {
     const errorText = errors
-      .map(err => `  - message: ${err.message}\n  path: ${err.path.join('::')}`)
+      .map(
+        (err) => `  - message: ${err.message}\n  path: ${err.path.join('::')}`
+      )
       .join('\n');
     super(`Encountered Switchboard error(s):\n${errorText}`);
     this.errors = errors;
