@@ -113,7 +113,7 @@ class Request {
       response.body.data.requestProgress.requestProgressResult;
 
     const result: ProgressUpdate = {
-      completedAt: new Date(completedAt),
+      completedAt: completedAt !== null ? new Date(completedAt) : null,
       progress: parseFloat(progress),
     };
 
@@ -145,7 +145,7 @@ class Request {
       const pollResult = await this.poll();
       const completedAt = pollResult.completedAt;
       const progress = pollResult.progress;
-      if (completedAt != null) {
+      if (completedAt !== null) {
         this.done = true;
       }
 
