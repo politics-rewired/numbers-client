@@ -37,6 +37,9 @@ jobs:
 
       - run: yarn install
 
+      - name: Lint codebase
+        run: yarn lint
+
       - name: Run Affected Tests
         run: yarn test
         env:
