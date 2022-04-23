@@ -18,9 +18,15 @@ type RequestConstructorOptions = {
   requestId: string;
 };
 
+type LookupRequestResult = {
+  phoneNumber: string;
+  carrierName: string;
+  lrnUpdatedAt: string;
+};
+
 type EachPageOptions = {
   pageSize?: number;
-  onPage?: (numbers: [{ phoneNumber: string }]) => Promise<void>;
+  onPage?: (numbers: LookupRequestResult[]) => Promise<void> | void;
 };
 
 type ProgressUpdate = {
@@ -208,6 +214,10 @@ class Request {
 
   voips = {
     eachPage: this.wrapEachPage('voip'),
+  };
+
+  unknowns = {
+    eachPage: this.wrapEachPage('unknown'),
   };
 }
 
