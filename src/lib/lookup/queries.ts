@@ -48,6 +48,8 @@ export const REQUEST_RESULTS_BY_TYPE = `
     ) {
       nodes {
         phoneNumber
+        carrierName
+        lrnUpdatedAt
       }
       pageInfo {
         endCursor
