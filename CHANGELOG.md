@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/ben-pr-p/numbers-client/compare/v1.2.5...v1.3.0) (2022-05-22)
+
+
+### Features
+
+* expose carrier info for requests ([#39](https://github.com/ben-pr-p/numbers-client/issues/39)) ([ee468ea](https://github.com/ben-pr-p/numbers-client/commit/ee468ea0b7e098ba21ecfe527d14258a16170148))
+
 ### [1.2.5](https://github.com/ben-pr-p/numbers-client/compare/v1.2.4...v1.2.5) (2021-07-08)
 
 
